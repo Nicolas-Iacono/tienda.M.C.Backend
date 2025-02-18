@@ -18,7 +18,7 @@ const preferenceClient = new Preference(mpConfig);
 
 // URLs base para redirecciones según el ambiente
 const BASE_URL = process.env.NODE_ENV === 'production' 
-  ? process.env.FRONTEND_URL || 'https://frontend-megaofertas-production.up.railway.app'
+  ? process.env.API_URL || 'https://frontend-megaofertas-production.up.railway.app'
   : 'http://localhost:3000';
 
 // Configuración de URLs de retorno
