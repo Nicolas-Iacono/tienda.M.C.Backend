@@ -1,6 +1,6 @@
 const correoArgentino = require('../../services/correoArgentino')
-const { Product, User, Address } = require('../models');
-
+const { Product, User } = require('../../models');
+const {Address} = require('../../models/userInfo/Address');
 module.exports = {
     async getShippingRates(req, res) {
         try {
