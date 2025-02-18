@@ -1,4 +1,4 @@
-const correoArgentino = require('../services/correoArgentino');
+const correoArgentino = require('../../services/correoArgentino')
 const { Product, User, Address } = require('../models');
 
 module.exports = {
