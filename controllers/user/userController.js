@@ -245,7 +245,7 @@ exports.loginUser = async (req, res) => {
             : [];
     console.log('Roles del usuario:', formattedRoles);
         
-        const payload = { id: user.id, email: user.email, first_name: user.first_name, last_name: user.last_name, authorities: formattedRoles};
+        const payload = { id: user.id, email: user.email, first_name: user.first_name, last_name: user.last_name, authorities: formattedRoles,};
 
         const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
 

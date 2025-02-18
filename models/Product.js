@@ -48,6 +48,26 @@ disponible:{
   type: DataTypes.BOOLEAN,
   allowNull: false,
   defaultValue: true,
+},
+alto: {
+  type: DataTypes.FLOAT,
+  allowNull: false,
+  defaultValue: 0
+},
+ancho: {
+  type: DataTypes.FLOAT,
+  allowNull: false,
+  defaultValue: 0
+},
+largo: {
+  type: DataTypes.FLOAT,
+  allowNull: false,
+  defaultValue: 0
+},
+peso: {
+  type: DataTypes.FLOAT,
+  allowNull: false,
+  defaultValue: 0
 }
 },{
   timestamps: true, // Habilita timestamps

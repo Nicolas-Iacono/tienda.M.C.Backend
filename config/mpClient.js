@@ -9,7 +9,8 @@ if (!process.env.MP_ACCESS_TOKEN) {
 
 // Configuración del cliente de MercadoPago
 const mpConfig = new MercadoPagoConfig({ 
-  accessToken: process.env.MP_ACCESS_TOKEN 
+  accessToken: process.env.MP_ACCESS_TOKEN,
+  notificacion_url: process.env.API_URL
 });
 
 // Cliente para crear preferencias de pago
@@ -17,7 +18,7 @@ const preferenceClient = new Preference(mpConfig);
 
 // URLs base para redirecciones según el ambiente
 const BASE_URL = process.env.NODE_ENV === 'production' 
-  ? process.env.FRONTEND_URL || 'https://tu-dominio-produccion.com'
+  ? process.env.FRONTEND_URL || 'https://frontend-megaofertas-production.up.railway.app'
   : 'http://localhost:3000';
 
 // Configuración de URLs de retorno

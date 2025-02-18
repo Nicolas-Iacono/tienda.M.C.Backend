@@ -4,14 +4,14 @@ const nodemailer = require('nodemailer')
 const transporter = nodemailer.createTransport({
   service:"Gmail",
   auth:{
-    user:"mega.ofertas.siempre@gmail.com",
+    user:"gymovimiento.con.siente@gmail.com",
     pass:"mfgp cyqp pfgt xcjl"
   }
 })
 
 const sendMail = (to, subject, html) =>{
   const mailOptions = {
-    from: "mega.ofertas.siempre@gmail.com",
+    from: "gymovimiento.con.siente@gmail.com",
     to: to,
     subject: subject,
     html: html

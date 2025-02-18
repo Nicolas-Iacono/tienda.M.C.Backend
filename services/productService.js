@@ -24,7 +24,11 @@ exports.getAllProducts = async () => {
             categoriaId: product.categoriaId,
             imagenes: product.imagenes,
             fechaCreacion: product.createdAt,
-            disponible:product.disponible
+            disponible:product.disponible,
+            alto:product.alto,
+            ancho:product.ancho,
+            largo:product.largo,
+            peso:product.peso
         };
     });
 
@@ -83,6 +87,10 @@ exports.getLatestFiveProducts = async () => {
             categoriaId: product.categoriaId,
             imagenes: product.imagenes,
             disponible: product.disponible,
+            alto:product.alto,
+            ancho:product.ancho,
+            largo:product.largo,
+            peso:product.peso
         };
     });
 
@@ -115,6 +123,10 @@ exports.getLatestProducts = async () => {
             categoriaId: product.categoriaId,
             imagenes: product.imagenes,
             disponible: product.disponible,
+            alto:product.alto,
+            ancho:product.ancho,
+            largo:product.largo,
+            peso:product.peso
             
         };
     });
