@@ -4,6 +4,11 @@ const User = require('./User');
 const OrderDetail = require('./OrderDetail');
 
 const Order = sequelize.define('Order', {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true
+    },
     preferenceId: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -85,7 +90,6 @@ const Order = sequelize.define('Order', {
     timestamps: true,
     underscored: true
 });
-
 
 
 module.exports = Order;

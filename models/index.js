@@ -62,7 +62,7 @@ Order.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 
 Order.hasMany(OrderDetail, { foreignKey: 'orderId', as: 'orderDetails' });
 
-Payment.belongsTo(User, { as: 'customer' });
+Payment.belongsTo(User, {foreignKey: 'userId', as: 'customer' });
 // Exportar modelos y Sequelize
 module.exports = {
   sequelize,

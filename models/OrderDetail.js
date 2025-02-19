@@ -2,9 +2,24 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 const Order = require('./Order');
 const Product = require('./Product');
-const User = require('./User');
 
- const OrderDetail = sequelize.define('OrderDetail', {
+const OrderDetail = sequelize.define('OrderDetail', {
+    orderId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: Order,
+        key: 'id'
+      }
+    },
+    productId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: Product,
+        key: 'id'
+      }
+    },
     quantity: {
       type: DataTypes.INTEGER,
       allowNull: false
@@ -17,10 +32,10 @@ const User = require('./User');
       type: DataTypes.DECIMAL(10,2),
       allowNull: false
     }
-  }, {
-    tableName: 'OrderDetails'
-  });
-
-
+}, {
+    tableName: 'order_details',
+    timestamps: true,
+    underscored: true
+});
 
 module.exports = OrderDetail;

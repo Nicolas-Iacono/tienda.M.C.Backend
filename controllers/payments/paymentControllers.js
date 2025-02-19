@@ -1,7 +1,11 @@
 const { preferenceClient, RETURN_URLS } = require("../../config/mpClient");
-const Order = require('../../models/Order'); // Importar el modelo de Orden
+const Order = require('../../models/Order');
+const OrderDetail = require('../../models/OrderDetail');
+const sequelize = require('../../config/database');
 
 exports.createPreference = async (req, res) => {
+  const t = await sequelize.transaction();
+
   try {
     const { items, payer } = req.body;
 
@@ -21,9 +25,9 @@ exports.createPreference = async (req, res) => {
       unit_price: Number(item.unit_price),
       quantity: Number(item.quantity),
       currency_id: "ARS",
-      picture_url: item.image, // URL de la imagen del producto
-      description: item.description || item.title, // Descripción del producto
-      category_id: "others" // Categoría del producto
+      picture_url: item.image,
+      description: item.description || item.title,
+      category_id: "others"
     }));
 
     const payerData = {
@@ -43,7 +47,7 @@ exports.createPreference = async (req, res) => {
     }
 
     const preferenceData = {
-      external_reference: externalReference, 
+      external_reference: externalReference,
       items: formattedItems,
       payer: payerData,
       back_urls: RETURN_URLS,
@@ -76,21 +80,37 @@ exports.createPreference = async (req, res) => {
       }
     };
 
-    // Crear la orden en la base de datos
+    // Calcular el monto total
     const totalAmount = formattedItems.reduce((total, item) => total + (item.unit_price * item.quantity), 0);
     
-    await Order.create({
+    // Crear la orden en la base de datos
+    const order = await Order.create({
       preferenceId: externalReference,
       paymentStatus: 'pending',
       totalAmount: totalAmount,
       purchaseDate: new Date(),
       shippingAddress: `${payerData.address.street_name} ${payerData.address.street_number}`,
-      shippingZipCode: payerData.address.zip_code
-    });
+      shippingZipCode: payerData.address.zip_code,
+      userId: payer.id || null
+    }, { transaction: t });
+
+    // Crear los detalles de la orden
+    const orderDetails = formattedItems.map(item => ({
+      orderId: order.id,
+      productId: item.id,
+      quantity: item.quantity,
+      unitPrice: item.unit_price,
+      subtotal: item.unit_price * item.quantity
+    }));
+
+    await OrderDetail.bulkCreate(orderDetails, { transaction: t });
 
     // Crear la preferencia en Mercado Pago
     const preference = await preferenceClient.create({ body: preferenceData });
     
+    // Confirmar la transacción
+    await t.commit();
+
     return res.json({
       preferenceId: preference.id,
       init_point: preference.init_point,
@@ -98,6 +118,8 @@ exports.createPreference = async (req, res) => {
     });
 
   } catch (error) {
+    // Revertir la transacción en caso de error
+    await t.rollback();
     console.error("Error al crear preferencia:", error);
     return res.status(500).json({ 
       error: "Error al crear la preferencia de pago",
