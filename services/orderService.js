@@ -25,9 +25,9 @@ exports.createOrder = async ({ userId, products }) => {
         };
       }),
       back_urls: {
-        success: "https://backend-megaofertas-production.up.railway.app/status/success",
-        failure: "https://backend-megaofertas-production.up.railway.app/status/failure",
-        pending: "https://backend-megaofertas-production.up.railway.app/status/pending"
+        success: "http://localhost:3000/status/success",
+        failure: "http://localhost:3000/failure",
+        pending: "http://localhost:3000/status/pending"
       },
       auto_return: "approved"
   };

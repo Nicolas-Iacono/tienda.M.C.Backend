@@ -1,4 +1,5 @@
 const { preferenceClient, RETURN_URLS } = require("../../config/mpClient");
+const Order = require('../models/Order'); // Importar el modelo de Orden
 
 exports.createPreference = async (req, res) => {
   try {
@@ -9,6 +10,9 @@ exports.createPreference = async (req, res) => {
         error: "Se requiere un array de items con al menos un elemento" 
       });
     }
+
+    // Generar un código único para external_reference
+    const externalReference = `ORDER_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
     // Validar y formatear los items con más detalles
     const formattedItems = items.map(item => ({
@@ -39,6 +43,7 @@ exports.createPreference = async (req, res) => {
     }
 
     const preferenceData = {
+      external_reference: externalReference, 
       items: formattedItems,
       payer: payerData,
       back_urls: RETURN_URLS,
@@ -51,39 +56,39 @@ exports.createPreference = async (req, res) => {
         installments: 12,
         default_installments: 1
       },
-      // Configuración de la experiencia móvil
-      binary_mode: true, // Para tener respuestas de pago inmediatas
+      binary_mode: true,
       expires: true,
-      expiration_date_to: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24 horas
-      // Metadata personalizada
+      expiration_date_to: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
       metadata: {
         platform: "mobile",
         source: "web"
       },
-      // Configuración de la vista
       presentation: {
         currency_id: "ARS",
         operation_type: "regular_payment"
       },
       notification_url: "https://backend-megaofertas-production.up.railway.app/webhook/mercadopago",
-      // Configuración del checkout
-      payment_methods: {
-        excluded_payment_types: [
-          { id: "ticket" }
-        ],
-        installments: 12,
-        default_installments: 1,
-        default_payment_method_id: null,
-      },
-      // Configuración de la UI
       ui: {
-        layout: "mobile", // Forzar layout móvil
-        show_shipping: false, // No mostrar envío si no es necesario
-        show_installments: true, // Mostrar cuotas disponibles
-        show_promotions: true, // Mostrar promociones disponibles
+        layout: "mobile",
+        show_shipping: false,
+        show_installments: true,
+        show_promotions: true
       }
     };
 
+    // Crear la orden en la base de datos
+    const totalAmount = formattedItems.reduce((total, item) => total + (item.unit_price * item.quantity), 0);
+    
+    await Order.create({
+      preferenceId: externalReference,
+      paymentStatus: 'pending',
+      totalAmount: totalAmount,
+      purchaseDate: new Date(),
+      shippingAddress: `${payerData.address.street_name} ${payerData.address.street_number}`,
+      shippingZipCode: payerData.address.zip_code
+    });
+
+    // Crear la preferencia en Mercado Pago
     const preference = await preferenceClient.create({ body: preferenceData });
     
     return res.json({
