@@ -17,6 +17,11 @@ const Payment = sequelize.define('Payment', {
       key: 'id'
     },
     field: 'order_id'
+  },  
+  userId: {  // Nueva columna para la relación con User
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    field: 'user_id'
   },
   status: {
     type: DataTypes.STRING,
@@ -63,9 +68,6 @@ const Payment = sequelize.define('Payment', {
 });
 
 // Definir la relación con Order
-Payment.belongsTo(Order, {
-  foreignKey: 'orderId',
-  as: 'order'
-});
+
 
 module.exports = Payment;

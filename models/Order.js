@@ -1,7 +1,5 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
-const User = require('./User');
-const OrderDetail = require('./OrderDetail');
 
 const Order = sequelize.define('Order', {
     id: {
@@ -53,43 +51,14 @@ const Order = sequelize.define('Order', {
       type: DataTypes.STRING,
       allowNull: true
     },
-    shippingDimensions: { // Alto x Ancho x Largo,Peso (en cm y kg)
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    shippingLogisticType: { // me2, me1, custom, etc.
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    shippingCost: {
-      type: DataTypes.DECIMAL(10, 2),
-      allowNull: true
-    },
-    shippingStatus: { // Creado, En camino, Entregado, etc.
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    shipmentId: { // ID del envío en Mercado Libre (si aplica)
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    trackingNumber: { // Número de seguimiento del envío
-      type: DataTypes.STRING,
-      allowNull: true
-    },
     userId: {
       type: DataTypes.INTEGER,
-      allowNull: true,
-      references: {
-        model: User,
-        key: 'id'
-      }
+      allowNull: true
     }
 }, {
     tableName: 'orders',
     timestamps: true,
     underscored: true
 });
-
 
 module.exports = Order;
