@@ -1,6 +1,7 @@
 // src/services/mpService.js
-const { Payment, Order } = require('../models');
 const { MercadoPagoConfig, Payment: MPPayment } = require('mercadopago');
+const { Order } = require('../models/Order');
+const { Payment } = require('../models/Payment');
 const axios = require('axios');
 
 // Configurar el cliente de Mercado Pago
@@ -21,87 +22,80 @@ const fetchPaymentDetails = async (paymentId) => {
   }
 };
 
-// Función para obtener detalles del merchant order usando axios
-const fetchMerchantOrderDetails = async (merchantOrderUrl) => {
-  try {
-    const response = await axios.get(merchantOrderUrl, {
-      headers: {
-        'Authorization': `Bearer ${client.accessToken}`
-      }
-    });
-    return response.data;
-  } catch (error) {
-    console.error('Error al obtener los detalles del merchant order:', error);
-    return null;
-  }
-};
-
 exports.processNotification = async (payload) => {
   try {
-    // Determinar el tipo de notificación
-    const isMerchantOrder = payload.topic === 'merchant_order' || payload.type === 'merchant_order';
-    const isPayment =
-      payload.topic === 'payment' ||
-      payload.type === 'payment' ||
-      payload.action === 'payment.created';
+    console.log('Procesando notificación:', payload);
 
-    if (isMerchantOrder) {
-      console.log('Procesando notificación de merchant_order para obtener detalles de la compra y del payer.');
-      const merchantOrder = await fetchMerchantOrderDetails(payload.resource);
-      if (!merchantOrder) {
-        console.error('No se pudo obtener la información del merchant order.');
+    // Manejar notificación de pago
+    if (payload.topic === 'payment' || payload.type === 'payment') {
+      const paymentId = payload.data?.id || payload.resource;
+      if (!paymentId) {
+        throw new Error('No se encontró el ID del pago en la notificación');
+      }
+
+      console.log('Obteniendo detalles del pago:', paymentId);
+      const paymentInfo = await fetchPaymentDetails(paymentId);
+      
+      if (!paymentInfo) {
+        throw new Error(`No se pudo obtener la información del pago ${paymentId}`);
+      }
+
+      // Extraer información del pago
+      const {
+        status,
+        status_detail,
+        transaction_amount,
+        external_reference,
+        date_approved,
+        payer,
+        additional_info
+      } = paymentInfo;
+
+      // Buscar la orden por external_reference
+      const order = await Order.findOne({
+        where: { preferenceId: external_reference }
+      });
+
+      if (!order) {
+        console.error(`No se encontró la orden con preferenceId ${external_reference}`);
         return;
       }
 
-      const orderData = {
-        order_id: merchantOrder.id.toString(),
-        items: merchantOrder.order_items || merchantOrder.items,
-        payer_email:
-          merchantOrder.buyer && merchantOrder.buyer.email ? merchantOrder.buyer.email : null,
-        payer_name:
-          merchantOrder.buyer && merchantOrder.buyer.first_name && merchantOrder.buyer.last_name
-            ? `${merchantOrder.buyer.first_name} ${merchantOrder.buyer.last_name}`
-            : null,
-      };
-
-      await Order.upsert(orderData);
-      console.log(`Orden ${orderData.order_id} guardada/actualizada en la base de datos.`);
-      return;
-    } else if (isPayment) {
-      let paymentInfo = payload.data;
-      if (!paymentInfo || !paymentInfo.id) {
-        const paymentId = payload.resource;
-        if (!paymentId) {
-          console.error("El payload de notificación no contiene datos de pago válidos:", payload);
-          return;
+      // Actualizar la orden
+      await order.update({
+        paymentStatus: status,
+        statusDetail: status_detail || null,
+        paymentId: paymentId.toString(),
+        paymentApprovedDate: date_approved ? new Date(date_approved) : null,
+        totalAmount: transaction_amount,
+        buyerInfo: {
+          email: payer.email,
+          name: `${payer.first_name} ${payer.last_name}`,
+          phone: payer.phone?.number || null,
+          identification: payer.identification
         }
-        console.log(`Obteniendo detalles del pago para ID: ${paymentId}`);
-        paymentInfo = await fetchPaymentDetails(paymentId);
-        if (!paymentInfo) {
-          console.error("No se pudo obtener la información del pago para el ID:", paymentId);
-          return;
-        }
-      }
-      
-      const paymentData = {
-        payment_id: paymentInfo.id.toString(),
-        status: paymentInfo.status,
-        amount: paymentInfo.transaction_amount,
-        payer_email:
-          paymentInfo.payer && paymentInfo.payer.email ? paymentInfo.payer.email : null,
-        payer_name:
-          paymentInfo.payer && paymentInfo.payer.first_name && paymentInfo.payer.last_name
-            ? `${paymentInfo.payer.first_name} ${paymentInfo.payer.last_name}`
-            : null,
-      };
+      });
 
-      await Payment.upsert(paymentData);
-      console.log(`Pago ${paymentData.payment_id} guardado/actualizado en la base de datos.`);
-    } else {
-      console.log(
-        `Notificación de tipo ${payload.topic || payload.type || payload.action} no se procesa en este servicio.`
-      );
+      console.log(`Orden ${external_reference} actualizada con éxito`);
+
+      // Registrar el pago
+      await Payment.create({
+        paymentId: paymentId.toString(),
+        orderId: order.id,
+        status,
+        statusDetail: status_detail || null,
+        amount: transaction_amount,
+        payerEmail: payer.email,
+        payerName: `${payer.first_name} ${payer.last_name}`,
+        paymentMethod: paymentInfo.payment_method_id,
+        dateCreated: new Date(),
+        dateApproved: date_approved ? new Date(date_approved) : null
+      });
+
+      console.log(`Pago ${paymentId} registrado con éxito`);
     }
+
+    return true;
   } catch (error) {
     console.error('Error al procesar la notificación:', error);
     throw error;

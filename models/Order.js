@@ -4,15 +4,24 @@ const User = require('./User');
 const OrderDetail = require('./OrderDetail');
 
 const Order = sequelize.define('Order', {
-    // ID autogenerado
     preferenceId: {
       type: DataTypes.STRING,
       allowNull: false,
       unique: true
     },
+    paymentId: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      unique: true
+    },
     paymentStatus: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: false,
+      defaultValue: 'pending'
+    },
+    statusDetail: {
+      type: DataTypes.STRING,
+      allowNull: true
     },
     totalAmount: {
       type: DataTypes.DECIMAL(10, 2),
@@ -23,9 +32,17 @@ const Order = sequelize.define('Order', {
       allowNull: false,
       defaultValue: DataTypes.NOW
     },
+    paymentApprovedDate: {
+      type: DataTypes.DATE,
+      allowNull: true
+    },
+    buyerInfo: {
+      type: DataTypes.JSON,
+      allowNull: true
+    },
     shippingAddress: {
-      type: DataTypes.STRING, // O DataTypes.JSON si quieres guardar la dirección como un objeto JSON
-      allowNull: true // Permite valores nulos si el envío no es necesario
+      type: DataTypes.STRING,
+      allowNull: true
     },
     shippingZipCode: {
       type: DataTypes.STRING,
@@ -54,16 +71,25 @@ const Order = sequelize.define('Order', {
     trackingNumber: { // Número de seguimiento del envío
       type: DataTypes.STRING,
       allowNull: true
+    },
+    userId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: User,
+        key: 'id'
+      }
     }
-    }, {
-    tableName: 'Orders'
-    });
+}, {
+    tableName: 'orders',
+    timestamps: true,
+    underscored: true
+});
 
-
-
-  
-
-
-
+// Definir la relación con User
+Order.belongsTo(User, {
+    foreignKey: 'userId',
+    as: 'user'
+});
 
 module.exports = Order;
