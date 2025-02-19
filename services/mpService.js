@@ -1,18 +1,20 @@
 // src/services/mpService.js
-const { Payment, Order } = require('../models'); // Asegúrate de tener el modelo Order si lo usas
-const mercadopago = require('mercadopago');
+const { Payment, Order } = require('../models');
+const { MercadoPagoConfig, Payment: MPPayment } = require('mercadopago');
 const axios = require('axios');
 
-// Configura tu SDK de Mercado Pago
-mercadopago.configure({
-  access_token: 'APP_USR-4751229832754166-021415-71671c1b35c3ad4020c2f6dc03527663-570292746'
+// Configurar el cliente de Mercado Pago
+const client = new MercadoPagoConfig({
+  accessToken: process.env.MP_ACCESS_TOKEN || 'APP_USR-4751229832754166-021415-71671c1b35c3ad4020c2f6dc03527663-570292746'
 });
+
+const payment = new MPPayment(client);
 
 // Función para obtener detalles del pago mediante el SDK
 const fetchPaymentDetails = async (paymentId) => {
   try {
-    const response = await mercadopago.payment.findById(paymentId);
-    return response.body;
+    const response = await payment.get({ id: paymentId });
+    return response;
   } catch (error) {
     console.error('Error al obtener los detalles del pago:', error);
     return null;
@@ -22,7 +24,11 @@ const fetchPaymentDetails = async (paymentId) => {
 // Función para obtener detalles del merchant order usando axios
 const fetchMerchantOrderDetails = async (merchantOrderUrl) => {
   try {
-    const response = await axios.get(merchantOrderUrl);
+    const response = await axios.get(merchantOrderUrl, {
+      headers: {
+        'Authorization': `Bearer ${client.accessToken}`
+      }
+    });
     return response.data;
   } catch (error) {
     console.error('Error al obtener los detalles del merchant order:', error);
@@ -41,19 +47,15 @@ exports.processNotification = async (payload) => {
 
     if (isMerchantOrder) {
       console.log('Procesando notificación de merchant_order para obtener detalles de la compra y del payer.');
-      // Obtenemos el merchant order usando la URL que viene en resource
       const merchantOrder = await fetchMerchantOrderDetails(payload.resource);
       if (!merchantOrder) {
         console.error('No se pudo obtener la información del merchant order.');
         return;
       }
 
-      // Mapeamos la información de la orden. Los nombres de las propiedades pueden variar según la API.
       const orderData = {
         order_id: merchantOrder.id.toString(),
-        // Supongamos que los items están en merchantOrder.order_items o merchantOrder.items
         items: merchantOrder.order_items || merchantOrder.items,
-        // Información del comprador. Algunos endpoints usan la propiedad "buyer".
         payer_email:
           merchantOrder.buyer && merchantOrder.buyer.email ? merchantOrder.buyer.email : null,
         payer_name:
@@ -62,15 +64,12 @@ exports.processNotification = async (payload) => {
             : null,
       };
 
-      // Guarda o actualiza la orden en la base de datos (asegúrate de tener el modelo Order configurado)
       await Order.upsert(orderData);
       console.log(`Orden ${orderData.order_id} guardada/actualizada en la base de datos.`);
       return;
     } else if (isPayment) {
-      // Procesamos notificaciones de pago
       let paymentInfo = payload.data;
       if (!paymentInfo || !paymentInfo.id) {
-        // Si no viene la información completa, usamos payload.resource como paymentId
         const paymentId = payload.resource;
         if (!paymentId) {
           console.error("El payload de notificación no contiene datos de pago válidos:", payload);
