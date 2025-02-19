@@ -1,7 +1,7 @@
 // src/services/mpService.js
 const { MercadoPagoConfig, Payment: MPPayment } = require('mercadopago');
-const { Order } = require('../models/Order');
-const { Payment } = require('../models/Payment');
+const  Order  = require('../models/Order');
+const  Payment  = require('../models/Payment');
 const axios = require('axios');
 
 // Configurar el cliente de Mercado Pago
