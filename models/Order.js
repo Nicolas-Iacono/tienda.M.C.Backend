@@ -86,10 +86,6 @@ const Order = sequelize.define('Order', {
     underscored: true
 });
 
-// Definir la relación con User
-Order.belongsTo(User, {
-    foreignKey: 'userId',
-    as: 'user'
-});
+
 
 module.exports = Order;
