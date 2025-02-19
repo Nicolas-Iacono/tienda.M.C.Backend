@@ -35,7 +35,7 @@ exports.processNotification = async (payload) => {
 
       console.log('Obteniendo detalles del pago:', paymentId);
       const paymentInfo = await fetchPaymentDetails(paymentId);
-      
+      console.log('Detalles del pago recibidos:', paymentInfo);
       if (!paymentInfo) {
         throw new Error(`No se pudo obtener la información del pago ${paymentId}`);
       }
