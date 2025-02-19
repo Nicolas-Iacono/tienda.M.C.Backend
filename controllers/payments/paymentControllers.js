@@ -2,7 +2,7 @@ const { preferenceClient, RETURN_URLS } = require("../../config/mpClient");
 
 exports.createPreference = async (req, res) => {
   try {
-    const { items } = req.body;
+    const { items, payer } = req.body;
 
     if (!Array.isArray(items) || items.length === 0) {
       return res.status(400).json({ 
@@ -22,8 +22,25 @@ exports.createPreference = async (req, res) => {
       category_id: "others" // Categoría del producto
     }));
 
+    const payerData = {
+      id: payer.id,
+      name: payer.name,
+      surname: payer.surname,
+      email: payer.email,
+      phone: {
+        area_code: payer.phone.area_code,
+        number: payer.phone.number,
+      },
+      address: {
+        zip_code: payer.address.zip_code,
+        street_name: payer.address.street_name,
+        street_number: payer.address.street_number,
+      },
+    }
+
     const preferenceData = {
       items: formattedItems,
+      payer: payerData,
       back_urls: RETURN_URLS,
       auto_return: "approved",
       statement_descriptor: "MegaOfertas",
@@ -48,6 +65,7 @@ exports.createPreference = async (req, res) => {
         currency_id: "ARS",
         operation_type: "regular_payment"
       },
+      notification_url: "https://backend-megaofertas-production.up.railway.app/webhook/mercadopago",
       // Configuración del checkout
       payment_methods: {
         excluded_payment_types: [
