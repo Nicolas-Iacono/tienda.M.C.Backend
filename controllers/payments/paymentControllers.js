@@ -1,5 +1,5 @@
 const { preferenceClient, RETURN_URLS } = require("../../config/mpClient");
-const Order = require('../models/Order'); // Importar el modelo de Orden
+const Order = require('../../models/Order'); // Importar el modelo de Orden
 
 exports.createPreference = async (req, res) => {
   try {
