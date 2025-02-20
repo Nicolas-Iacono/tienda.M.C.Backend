@@ -79,7 +79,7 @@ exports.processNotification = async (payload) => {
       console.log(`Orden ${external_reference} actualizada con éxito`);
 
       // Registrar el pago
-      await Payment.create({
+      await Payment.upsert({
         paymentId: paymentId.toString(),
         orderId: order.id,
         status,
