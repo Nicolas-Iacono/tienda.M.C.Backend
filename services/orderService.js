@@ -66,3 +66,38 @@ exports.createOrder = async ({ userId, products }) => {
     redirect_url: mpResponse.sandbox_init_point // Usa init_point en producción
   };
 };
+
+
+exports.getAllOrders = async () => {
+  try {
+      const orders = await Order.findAll({
+          include: [
+              {
+                  model: OrderDetail,
+                  as: 'orderDetails',
+                  include: ['product']
+              }
+          ],
+          order: [['createdAt', 'DESC']]
+      });
+      return orders;
+  } catch (error) {
+      throw new Error('Error al obtener las órdenes: ' + error.message);
+  }
+};
+exports.getOrderById = async (orderId) => {
+  try {
+      const order = await Order.findByPk(orderId, {
+          include: [
+              {
+                  model: OrderDetail,
+                  as: 'orderDetails',
+                  include: ['product']
+              }
+          ]
+      });
+      return order;
+  } catch (error) {
+      throw new Error('Error al obtener la orden: ' + error.message);
+  }
+};

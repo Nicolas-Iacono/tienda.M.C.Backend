@@ -70,7 +70,7 @@ exports.processNotification = async (payload) => {
         totalAmount: transaction_amount,
         buyerInfo: {
           email: payer.email,
-          name: `${payer.first_name} ${payer.last_name}`,
+          name: `${additional_info.payer.first_name} ${additional_info.payer.last_name}`,
           phone: payer.phone?.number || null,
           identification: payer.identification
         }
@@ -86,7 +86,7 @@ exports.processNotification = async (payload) => {
         statusDetail: status_detail || null,
         amount: transaction_amount,
         payerEmail: payer.email,
-        payerName: `${payer.first_name} ${payer.last_name}`,
+        payerName: `${additional_info.payer.first_name} ${additional_info.payer.last_name}`,
         paymentMethod: paymentInfo.payment_method_id,
         dateCreated: new Date(),
         dateApproved: date_approved ? new Date(date_approved) : null
