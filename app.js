@@ -40,7 +40,7 @@ app.use((req, res, next) => {
 (async () => {
   try {
     await sequelize.sync({ alter: true }); // Usa alter: true para actualizaciones menores
-    console.log('Base de datos sincronizada correctamente.');
+    console.log('Base de datos MOVIMIENTO CONCIENTE sincronizada correctamente.');
   } catch (error) {
     console.error('Error al sincronizar la base de datos:', error);
   }
