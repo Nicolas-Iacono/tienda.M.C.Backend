@@ -1,8 +1,11 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const passport = require('passport');
 const { sequelize, Category, Product, Order, User } = require('./models');
 
+// Configuración de Passport
+require('./config/passport');
 
 // Importar rutas
 const userRoutes = require('./routes/userRoutes');
@@ -12,12 +15,14 @@ const categoryRoutes = require('./routes/categoryRoutes');
 const likeRoutes = require('./routes/likeRoutes');
 const paymentRoutes = require('./routes/paymentsRoutes');
 const mpRoutes = require('./routes/mpRoutes');
+const authRoutes = require('./routes/authRoutes');
 dotenv.config();
 const app = express();
 
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(passport.initialize());
 
 // Rutas
 app.get('/', (req, res) => {
@@ -31,6 +36,7 @@ app.use('/category', categoryRoutes);
 app.use('/like', likeRoutes);
 app.use('/payment', paymentRoutes);
 app.use('/webhook', mpRoutes);
+app.use('/auth', authRoutes);
 
 app.use((req, res, next) => {
   console.log(`${req.method} ${req.url}`);
