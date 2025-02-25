@@ -21,7 +21,7 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: ['https://movimientoconsiente.com', 'https://www.movimientoconsiente.com'],
+  origin: ['https://movimientoconsiente.com', 'https://www.movimientoconsiente.com', 'http://localhost:3000'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
