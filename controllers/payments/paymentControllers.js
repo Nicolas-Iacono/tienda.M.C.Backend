@@ -41,19 +41,19 @@ exports.createPreference = async (req, res) => {
     }));
 
     const payerData = {
-      id: payer.id,
-      name: payer.name,
+      id: payer.id || null,
+      name: payer.name || '',
       surname: payer.surname || '',
-      email: payer.email,
-      phone: payer.phone ? {
-        area_code: payer.phone.area_code || '',
-        number: payer.phone.number || '',
-      } : {},
-      address: payer.address ? {
-        zip_code: payer.address.zip_code || '',
-        street_name: payer.address.street_name || '',
-        street_number: payer.address.street_number || '',
-      } : {}
+      email: payer.email || '',
+      phone: {
+        area_code: payer.phone?.area_code || '',
+        number: payer.phone?.number || ''
+      },
+      address: {
+        zip_code: payer.address?.zip_code || '',
+        street_name: payer.address?.street_name || '',
+        street_number: payer.address?.street_number || ''
+      }
     };
 
     console.log('Formatted payer data:', JSON.stringify(payerData, null, 2));
@@ -104,20 +104,18 @@ exports.createPreference = async (req, res) => {
     const totalAmount = formattedItems.reduce((total, item) => total + (item.unit_price * item.quantity), 0);
     
     // Crear la orden en la base de datos
-    const orderData = {
+    const order = await Order.create({
       preferenceId: externalReference,
       paymentStatus: 'pending',
       totalAmount: totalAmount,
       purchaseDate: new Date(),
-      shippingAddress: payer.address ? `${payer.address.street_name} ${payer.address.street_number}` : '',
+      shippingAddress: `${payer.address?.street_name || ''} ${payer.address?.street_number || ''}`.trim(),
       shippingZipCode: payer.address?.zip_code || '',
       userId: payer.id || null,
-      buyerInfo: payerData
-    };
+      buyerInfo: payerData  // Guardamos la información del comprador
+    }, { transaction: t });
 
-    console.log('Order data to be saved:', JSON.stringify(orderData, null, 2));
-
-    const order = await Order.create(orderData, { transaction: t });
+    console.log('Order data to be saved:', JSON.stringify(order.toJSON(), null, 2));
 
     console.log('Order created:', JSON.stringify(order.toJSON(), null, 2));
 
