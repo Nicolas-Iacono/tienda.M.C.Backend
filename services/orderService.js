@@ -52,6 +52,7 @@ exports.createOrder = async ({ userId, products }) => {
       OrderDetail.create({
         orderId: order.id,
         productId: item.id, // Se usa el campo "id" del producto
+        userId: item.id,
         quantity: item.quantity || 1,
         unitPrice: item.price,
         subtotal: (item.quantity || 1) * item.price
@@ -75,7 +76,7 @@ exports.getAllOrders = async () => {
               {
                   model: OrderDetail,
                   as: 'orderDetails',
-                  include: ['product']
+                  include: ['product', 'user']
               }
           ],
           order: [['createdAt', 'DESC']]
@@ -92,7 +93,7 @@ exports.getOrderById = async (orderId) => {
               {
                   model: OrderDetail,
                   as: 'orderDetails',
-                  include: ['product']
+                  include: ['product', 'user']
               }
           ]
       });

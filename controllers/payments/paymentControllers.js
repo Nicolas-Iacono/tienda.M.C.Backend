@@ -9,9 +9,19 @@ exports.createPreference = async (req, res) => {
   try {
     const { items, payer } = req.body;
 
+    console.log('Received payer data:', JSON.stringify(payer, null, 2));
+
     if (!Array.isArray(items) || items.length === 0) {
       return res.status(400).json({ 
         error: "Se requiere un array de items con al menos un elemento" 
+      });
+    }
+
+    // Validar que payer contenga la información necesaria
+    if (!payer || !payer.name || !payer.email || !payer.address) {
+      console.log('Missing required payer information');
+      return res.status(400).json({
+        error: "Se requiere información completa del comprador (nombre, email y dirección)"
       });
     }
 
@@ -33,17 +43,27 @@ exports.createPreference = async (req, res) => {
     const payerData = {
       id: payer.id,
       name: payer.name,
-      surname: payer.surname,
+      surname: payer.surname || '',
       email: payer.email,
-      phone: {
-        area_code: payer.phone.area_code,
-        number: payer.phone.number,
-      },
-      address: {
-        zip_code: payer.address.zip_code,
-        street_name: payer.address.street_name,
-        street_number: payer.address.street_number,
-      },
+      phone: payer.phone ? {
+        area_code: payer.phone.area_code || '',
+        number: payer.phone.number || '',
+      } : {},
+      address: payer.address ? {
+        zip_code: payer.address.zip_code || '',
+        street_name: payer.address.street_name || '',
+        street_number: payer.address.street_number || '',
+      } : {}
+    };
+
+    console.log('Formatted payer data:', JSON.stringify(payerData, null, 2));
+
+    // Agregar información adicional del comprador si está disponible
+    if (payer.identification) {
+      payerData.identification = {
+        type: payer.identification.type || '',
+        number: payer.identification.number || ''
+      };
     }
 
     const preferenceData = {
@@ -84,15 +104,22 @@ exports.createPreference = async (req, res) => {
     const totalAmount = formattedItems.reduce((total, item) => total + (item.unit_price * item.quantity), 0);
     
     // Crear la orden en la base de datos
-    const order = await Order.create({
+    const orderData = {
       preferenceId: externalReference,
       paymentStatus: 'pending',
       totalAmount: totalAmount,
       purchaseDate: new Date(),
-      shippingAddress: `${payerData.address.street_name} ${payerData.address.street_number}`,
-      shippingZipCode: payerData.address.zip_code,
-      userId: payer.id || null
-    }, { transaction: t });
+      shippingAddress: payer.address ? `${payer.address.street_name} ${payer.address.street_number}` : '',
+      shippingZipCode: payer.address?.zip_code || '',
+      userId: payer.id || null,
+      buyerInfo: payerData
+    };
+
+    console.log('Order data to be saved:', JSON.stringify(orderData, null, 2));
+
+    const order = await Order.create(orderData, { transaction: t });
+
+    console.log('Order created:', JSON.stringify(order.toJSON(), null, 2));
 
     // Crear los detalles de la orden
     const orderDetails = formattedItems.map(item => ({

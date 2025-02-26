@@ -21,6 +21,10 @@ const OrderDetail = sequelize.define('OrderDetail', {
     subtotal: {
       type: DataTypes.DECIMAL(10,2),
       allowNull: false
+    },
+    userId: {
+      type: DataTypes.INTEGER,
+      allowNull: true
     }
 }, {
     tableName: 'order_details',
