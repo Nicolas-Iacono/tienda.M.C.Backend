@@ -91,7 +91,9 @@ exports.createPreference = async (req, res) => {
         currency_id: "ARS",
         operation_type: "regular_payment"
       },
-      notification_url: "https://backend-megaofertas-production.up.railway.app/webhook/mercadopago",
+      notification_url: process.env.NODE_ENV === 'production'
+        ? `${process.env.API_URL}/webhook/mercadopago`
+        : "http://localhost:5000/webhook/mercadopago",
       ui: {
         layout: "mobile",
         show_shipping: false,
