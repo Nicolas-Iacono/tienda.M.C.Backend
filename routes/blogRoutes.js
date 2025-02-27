@@ -12,6 +12,7 @@ router.use((req, res, next) => {
 router.post('/secciones', blogController.createSeccion);
 router.get('/secciones', blogController.getSecciones);
 router.get('/secciones/:id', blogController.getSeccionById);
+router.delete('/secciones/:id', blogController.deleteSeccion);
 
 // Rutas para Clases
 router.post('/clases', blogController.createClase);

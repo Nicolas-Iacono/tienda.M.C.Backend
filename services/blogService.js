@@ -34,3 +34,45 @@ exports.getSeccionById = async (id) => {
         throw error;
     }
 };
+
+exports.deleteSeccion = async (id) => {
+    try {
+        console.log('Service - Intentando eliminar sección con ID:', id);
+        
+        // Primero verificamos que la sección exista
+        const seccion = await Seccion.findByPk(id, {
+            include: [
+                { model: Clase, as: 'clases' },
+                { model: Suscripcion, as: 'suscripciones' }
+            ]
+        });
+
+        console.log('Service - Sección encontrada:', seccion);
+
+        if (!seccion) {
+            console.log('Service - Sección no encontrada');
+            throw new Error('Sección no encontrada');
+        }
+
+        // Eliminamos primero las relaciones
+        if (seccion.clases && seccion.clases.length > 0) {
+            console.log('Service - Eliminando clases relacionadas');
+            await Clase.destroy({ where: { seccionId: id } });
+        }
+
+        if (seccion.suscripciones && seccion.suscripciones.length > 0) {
+            console.log('Service - Eliminando suscripciones relacionadas');
+            await Suscripcion.destroy({ where: { seccionId: id } });
+        }
+
+        // Eliminamos la sección
+        console.log('Service - Eliminando la sección');
+        await seccion.destroy();
+        
+        console.log('Service - Sección eliminada exitosamente');
+        return true;
+    } catch (error) {
+        console.error('Service - Error al eliminar sección:', error);
+        throw error;
+    }
+};

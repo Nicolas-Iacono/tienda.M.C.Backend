@@ -57,6 +57,33 @@ const getSeccionById = async (req, res) => {
     }
 };
 
+const deleteSeccion = async (req, res) => {
+    try {
+        const id = parseInt(req.params.id);
+        console.log('Controller - Intentando eliminar sección con ID:', id);
+        console.log('Controller - Tipo de ID:', typeof id);
+        
+        if (isNaN(id)) {
+            console.log('Controller - ID inválido');
+            return res.status(400).json({ message: 'ID inválido' });
+        }
+        
+        await blogService.deleteSeccion(id);
+        
+        console.log('Controller - Sección eliminada exitosamente');
+        res.status(200).json({ message: 'Sección eliminada exitosamente' });
+    } catch (error) {
+        console.error('Controller - Error al eliminar sección:', error);
+        if (error.message === 'Sección no encontrada') {
+            return res.status(404).json({ message: error.message });
+        }
+        res.status(500).json({ 
+            message: 'Error al eliminar la sección',
+            error: error.message 
+        });
+    }
+};
+
 // Controladores para Clases
 const createClase = async (req, res) => {
     try {
@@ -130,6 +157,7 @@ module.exports = {
     createSeccion,
     getSecciones,
     getSeccionById,
+    deleteSeccion,
     createClase,
     getClasesBySeccion,
     createSuscripcion,
