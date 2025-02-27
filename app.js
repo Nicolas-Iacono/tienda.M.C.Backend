@@ -16,6 +16,9 @@ const likeRoutes = require('./routes/likeRoutes');
 const paymentRoutes = require('./routes/paymentsRoutes');
 const mpRoutes = require('./routes/mpRoutes');
 const authRoutes = require('./routes/authRoutes');
+const instagramRoutes = require('./routes/instagramRoutes');
+const blogRoutes = require('./routes/blogRoutes');
+
 dotenv.config();
 const app = express();
 
@@ -28,6 +31,12 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(passport.initialize());
+
+// Middleware para logging
+app.use((req, res, next) => {
+    console.log(`${req.method} ${req.url}`);
+    next();
+});
 
 // Rutas
 app.get('/', (req, res) => {
@@ -42,11 +51,15 @@ app.use('/like', likeRoutes);
 app.use('/payment', paymentRoutes);
 app.use('/webhook', mpRoutes);
 app.use('/auth', authRoutes);
+app.use('/instagram', instagramRoutes);
+app.use('/blog', blogRoutes);
 
-app.use((req, res, next) => {
-  console.log(`${req.method} ${req.url}`);
-  next();
+// Middleware para manejo de errores
+app.use((err, req, res, next) => {
+    console.error('Error:', err);
+    res.status(500).json({ message: 'Error interno del servidor', error: err.message });
 });
+
 // Sincronizar base de datos y relaciones
 (async () => {
   try {

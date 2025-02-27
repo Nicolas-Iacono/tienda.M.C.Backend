@@ -31,8 +31,8 @@ const Product = sequelize.define('Product', {
     type: DataTypes.INTEGER,
   },
   imagenes: {
-    type: DataTypes.JSON, // Aquí usamos JSON para almacenar un array
-    allowNull: true,      // Puede ser null si no es obligatorio
+    type: DataTypes.JSON, 
+    allowNull: true,      
   },
   createdAt: {
     type: DataTypes.DATE,

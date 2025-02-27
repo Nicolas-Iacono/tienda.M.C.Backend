@@ -12,6 +12,9 @@ const Like = require('./user-Product/Like');
 const Order = require('./Order');
 const OrderDetail = require('./OrderDetail');
 const Payment = require('./Payment');
+const Seccion = require('./blog/Seccion');
+const Clase = require('./blog/Clase');
+const Suscripcion = require('./blog/Suscripcion');
 
 // Definir relaciones entre modelos
 Category.hasMany(Product, { foreignKey: 'categoriaId' });
@@ -68,6 +71,27 @@ OrderDetail.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 Payment.belongsTo(User, { foreignKey: 'userId', as: 'customer' });
 Payment.belongsTo(Order, { foreignKey: 'orderId' });
 
+// Relaciones del Blog
+Seccion.hasMany(Clase, {
+  foreignKey: 'seccionId',
+  as: 'clases'
+});
+
+Clase.belongsTo(Seccion, {
+  foreignKey: 'seccionId',
+  as: 'seccion'
+});
+
+Seccion.hasMany(Suscripcion, {
+  foreignKey: 'seccionId',
+  as: 'suscripciones'
+});
+
+Suscripcion.belongsTo(Seccion, {
+  foreignKey: 'seccionId',
+  as: 'seccion'
+});
+
 // Exportar modelos y Sequelize
 module.exports = {
   sequelize,
@@ -80,5 +104,8 @@ module.exports = {
   Authorities,
   Like,
   OrderDetail,
-  Payment
+  Payment,
+  Seccion,
+  Clase,
+  Suscripcion
 };
