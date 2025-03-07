@@ -134,17 +134,14 @@ const deleteClase = async (req, res) => {
             return res.status(400).json({ message: 'ID inválido' });
         }
 
-        const clase = await Clase.findByPk(id);
-        if (!clase) {
-            console.log('Controller - Clase no encontrada');
-            return res.status(404).json({ message: 'Clase no encontrada' });
-        }
-
-        await clase.destroy();
+        await blogService.deleteClase(id);
         console.log('Controller - Clase eliminada exitosamente');
         res.status(200).json({ message: 'Clase eliminada exitosamente' });
     } catch (error) {
         console.error('Controller - Error al eliminar clase:', error);
+        if (error.message === 'Clase no encontrada') {
+            return res.status(404).json({ message: error.message });
+        }
         res.status(500).json({ 
             message: 'Error al eliminar la clase',
             error: error.message 

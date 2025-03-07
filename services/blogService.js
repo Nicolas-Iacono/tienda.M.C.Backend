@@ -76,3 +76,29 @@ exports.deleteSeccion = async (id) => {
         throw error;
     }
 };
+
+exports.deleteClase = async (id) => {
+    try {
+        console.log('Service - Intentando eliminar clase con ID:', id);
+        
+        // Verificamos que la clase exista
+        const clase = await Clase.findByPk(id);
+
+        console.log('Service - Clase encontrada:', clase);
+
+        if (!clase) {
+            console.log('Service - Clase no encontrada');
+            throw new Error('Clase no encontrada');
+        }
+
+        // Eliminamos la clase
+        console.log('Service - Eliminando la clase');
+        await clase.destroy();
+        
+        console.log('Service - Clase eliminada exitosamente');
+        return true;
+    } catch (error) {
+        console.error('Service - Error al eliminar clase:', error);
+        throw error;
+    }
+};
