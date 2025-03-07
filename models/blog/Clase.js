@@ -39,6 +39,14 @@ const Clase = sequelize.define('Clase', {
             key: 'id'
         }
     },
+    productoId: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: {
+            model: 'Productos',
+            key: 'id'
+        }
+    },
     activo: {
         type: DataTypes.BOOLEAN,
         defaultValue: true
@@ -57,11 +65,15 @@ const Clase = sequelize.define('Clase', {
     timestamps: true
 });
 
-// Establecer la relación con Seccion
+// Establecer las relaciones
 Clase.associate = (models) => {
     Clase.belongsTo(models.Seccion, {
         foreignKey: 'seccionId',
         as: 'seccion'
+    });
+    Clase.belongsTo(models.Producto, {
+        foreignKey: 'productoId',
+        as: 'producto'
     });
 };
 
