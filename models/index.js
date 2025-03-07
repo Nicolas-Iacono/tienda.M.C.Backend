@@ -82,6 +82,17 @@ Clase.belongsTo(Seccion, {
   as: 'seccion'
 });
 
+Clase.belongsTo(Product, {
+  foreignKey: 'productoId',
+  as: 'product'
+});
+
+Product.hasMany(Clase, {
+  foreignKey: 'productoId',
+  as: 'clases'
+});
+
+// Relaciones de Suscripcion
 Seccion.hasMany(Suscripcion, {
   foreignKey: 'seccionId',
   as: 'suscripciones'

@@ -1,4 +1,4 @@
-const { Seccion, Clase, Suscripcion } = require('../../models');
+const { Seccion, Clase, Suscripcion, Product } = require('../../models');
 const blogService = require('../../services/blogService');
 
 // Controladores para Secciones
@@ -87,7 +87,7 @@ const deleteSeccion = async (req, res) => {
 // Controladores para Clases
 const createClase = async (req, res) => {
     try {
-        const { nombre, descripcion, instructor, dias, horaInicio, horaFin, imagen, seccionId } = req.body;
+        const { nombre, descripcion, instructor, dias, horaInicio, horaFin, imagen, seccionId, productoId } = req.body;
         const clase = await Clase.create({
             nombre,
             descripcion,
@@ -97,6 +97,7 @@ const createClase = async (req, res) => {
             horaFin,
             imagen,
             seccionId,
+            productoId,
             activo: true
         });
         res.status(201).json(clase);
@@ -111,12 +112,43 @@ const getClasesBySeccion = async (req, res) => {
         const { seccionId } = req.params;
         const clases = await Clase.findAll({
             where: { seccionId },
-            include: [{ model: Seccion, as: 'seccion' }]
+            include: [
+                { model: Seccion, as: 'seccion' },
+                { model: Product, as: 'product' }
+            ]
         });
         res.json(clases);
     } catch (error) {
         console.error('Error getting clases by seccion:', error);
         res.status(500).json({ message: error.message });
+    }
+};
+
+const deleteClase = async (req, res) => {
+    try {
+        const id = parseInt(req.params.id);
+        console.log('Controller - Intentando eliminar clase con ID:', id);
+        
+        if (isNaN(id)) {
+            console.log('Controller - ID inválido');
+            return res.status(400).json({ message: 'ID inválido' });
+        }
+
+        const clase = await Clase.findByPk(id);
+        if (!clase) {
+            console.log('Controller - Clase no encontrada');
+            return res.status(404).json({ message: 'Clase no encontrada' });
+        }
+
+        await clase.destroy();
+        console.log('Controller - Clase eliminada exitosamente');
+        res.status(200).json({ message: 'Clase eliminada exitosamente' });
+    } catch (error) {
+        console.error('Controller - Error al eliminar clase:', error);
+        res.status(500).json({ 
+            message: 'Error al eliminar la clase',
+            error: error.message 
+        });
     }
 };
 
@@ -161,5 +193,6 @@ module.exports = {
     createClase,
     getClasesBySeccion,
     createSuscripcion,
-    getSuscripcionesBySeccion
+    getSuscripcionesBySeccion,
+    deleteClase
 };

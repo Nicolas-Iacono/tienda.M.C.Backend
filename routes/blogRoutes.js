@@ -17,6 +17,7 @@ router.delete('/secciones/:id', blogController.deleteSeccion);
 // Rutas para Clases
 router.post('/clases', blogController.createClase);
 router.get('/secciones/:seccionId/clases', blogController.getClasesBySeccion);
+router.delete('/clases/:id', blogController.deleteClase);
 
 // Rutas para Suscripciones
 router.post('/suscripciones', blogController.createSuscripcion);

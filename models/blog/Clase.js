@@ -28,7 +28,7 @@ const Clase = sequelize.define('Clase', {
         allowNull: false
     },
     imagen: {
-        type: DataTypes.JSON, 
+        type: DataTypes.STRING, 
         allowNull: false
     },
     seccionId: {
@@ -43,7 +43,7 @@ const Clase = sequelize.define('Clase', {
         type: DataTypes.INTEGER,
         allowNull: true,
         references: {
-            model: 'Productos',
+            model: 'Products',
             key: 'id'
         }
     },
@@ -71,9 +71,9 @@ Clase.associate = (models) => {
         foreignKey: 'seccionId',
         as: 'seccion'
     });
-    Clase.belongsTo(models.Producto, {
+    Clase.belongsTo(models.Product, {
         foreignKey: 'productoId',
-        as: 'producto'
+        as: 'product'
     });
 };
 
