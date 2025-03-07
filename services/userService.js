@@ -4,13 +4,15 @@ const jwt = require("jsonwebtoken");
 const Address= require('../models/userInfo/Address');
 const Phone = require('../models/userInfo/Phone');
 const Authorities = require('../models/userInfo/Authorities');
+const Galery = require('../models/userInfo/Galery');
 exports.getAllUsers = async () => {
     try {
         const users = await User.findAll({
           include: [
             { model: Address, as: 'address' },
             { model: Phone, as: 'phone' },
-            { model: Authorities, as: 'authorities' } 
+            { model: Authorities, as: 'authorities' },
+            {model: Galery, as: 'galery'}
           ]
         });
         return users;
@@ -25,7 +27,8 @@ exports.getAllUsers = async () => {
             include: [
               { model: Address, as: 'address' },
               { model: Phone, as: 'phone' },
-              { model: Authorities, as: 'authorities' } 
+              { model: Authorities, as: 'authorities' },
+              {model: Galery, as: 'galery'}
             ]
           });
       

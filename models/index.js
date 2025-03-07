@@ -15,6 +15,7 @@ const Payment = require('./Payment');
 const Seccion = require('./blog/Seccion');
 const Clase = require('./blog/Clase');
 const Suscripcion = require('./blog/Suscripcion');
+const Galery = require('./userInfo/Galery');
 
 // Definir relaciones entre modelos
 Category.hasMany(Product, { foreignKey: 'categoriaId' });
@@ -58,6 +59,16 @@ User.hasOne(Address, {
 
 Address.belongsTo(User, {
   foreignKey: 'userId'
+});
+
+User.hasOne(Galery, {
+  foreignKey: 'userId',
+  as: 'galery'
+});
+
+Galery.belongsTo(User, {
+  foreignKey: 'userId',
+  as: 'user'
 });
 
 // Relaciones de Order y OrderDetail
@@ -118,5 +129,6 @@ module.exports = {
   Payment,
   Seccion,
   Clase,
-  Suscripcion
+  Suscripcion,
+  Galery
 };

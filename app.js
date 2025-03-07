@@ -18,6 +18,7 @@ const mpRoutes = require('./routes/mpRoutes');
 const authRoutes = require('./routes/authRoutes');
 const instagramRoutes = require('./routes/instagramRoutes');
 const blogRoutes = require('./routes/blogRoutes');
+const galeryRoutes = require('./routes/galeryRoutes');
 
 dotenv.config();
 const app = express();
@@ -30,6 +31,7 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json());
+app.use(express.static('public'));
 app.use(passport.initialize());
 
 // Middleware para logging
@@ -42,7 +44,7 @@ app.use((req, res, next) => {
 app.get('/', (req, res) => {
   res.send('Bienvenido a la API de la tienda');
 });
-
+app.use('/galery', galeryRoutes);
 app.use('/users', userRoutes);
 app.use('/products', productRoutes);
 app.use('/orders', orderRoutes);
