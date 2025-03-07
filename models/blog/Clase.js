@@ -28,7 +28,7 @@ const Clase = sequelize.define('Clase', {
         allowNull: false
     },
     imagen: {
-        type: DataTypes.STRING,
+        type: DataTypes.JSON, 
         allowNull: false
     },
     seccionId: {
