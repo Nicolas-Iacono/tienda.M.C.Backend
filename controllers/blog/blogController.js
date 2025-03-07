@@ -87,7 +87,7 @@ const deleteSeccion = async (req, res) => {
 // Controladores para Clases
 const createClase = async (req, res) => {
     try {
-        const { nombre, descripcion, instructor, dias, horaInicio, horaFin, imagen, seccionId, productoId } = req.body;
+        const { nombre, descripcion, instructor, dias, horaInicio, horaFin, imagen, seccionId, productoId, cardBgColor, cardTextColor } = req.body;
         const clase = await Clase.create({
             nombre,
             descripcion,
@@ -98,7 +98,9 @@ const createClase = async (req, res) => {
             imagen,
             seccionId,
             productoId,
-            activo: true
+            activo: true,
+            cardTextColor,
+            cardBgColor
         });
         res.status(201).json(clase);
     } catch (error) {

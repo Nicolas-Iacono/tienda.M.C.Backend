@@ -14,6 +14,7 @@ exports.getAllProducts = async () => {
         return {
             id: product.id,
             name: product.nombre,
+            nameLowerCase: product.nombreLowerCase,
             priceLista: product.precioLista,
             price: product.precioVenta,
             stock: product.stock,
@@ -77,6 +78,7 @@ exports.getLatestFiveProducts = async () => {
         return {
             id: product.id,
             name: product.nombre,
+            nameLowerCase: product.nombreLowerCase,
             priceLista: product.precioLista,
             price: product.precioVenta,
             stock: product.stock,
@@ -113,6 +115,7 @@ exports.getLatestProducts = async () => {
         return {
             id: product.id,
             name: product.nombre,
+            nameLowerCase: product.nombreLowerCase,
             priceLista: product.precioLista,
             price: product.precioVenta,
             stock: product.stock,
@@ -142,7 +145,7 @@ exports.searchProduct = async (query) => {
     try {
         const results = await Product.findAll({
           where: {
-            nombre: {
+            nombreLowerCase: {
               [Op.like]: `%${query}%`, // Busca en cualquier parte del título
             },
           },

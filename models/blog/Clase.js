@@ -31,6 +31,16 @@ const Clase = sequelize.define('Clase', {
         type: DataTypes.STRING, 
         allowNull: false
     },
+    cardBgColor: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        defaultValue: '#000000'
+    },
+    cardTextColor: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        defaultValue: '#FFFFFF'
+    },
     seccionId: {
         type: DataTypes.INTEGER,
         allowNull: false,

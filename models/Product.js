@@ -3,10 +3,21 @@ const sequelize = require('../config/database');
 
 
 const Product = sequelize.define('Product', {
+
   nombre: {
     type: DataTypes.TEXT,
     allowNull: false,
+    set(value) {
+      // Guardamos el valor original y en minúsculas
+      this.setDataValue('nombre', value);
+      this.setDataValue('nombreLowerCase', value.toLowerCase());
+    }
   },
+  nombreLowerCase: {
+    type: DataTypes.TEXT,
+    allowNull: true // Lo hacemos nullable para poder agregarlo a la tabla existente
+  },
+
   precioLista: {
     type: DataTypes.DECIMAL(10, 2),
     allowNull: false,
